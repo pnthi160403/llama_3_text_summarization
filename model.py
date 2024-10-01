@@ -25,6 +25,7 @@ class ModelArgs:
   max_batch_size: int = 4
   max_seq_len: int = 3072
   pad_token_id: int = 2
+  label_smoothing: float = 0.01
   device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 ## Step2a: The RMSNorm
@@ -312,6 +313,7 @@ class Transformer(nn.Module):
         logits.view(-1, self.params.vocab_size),
         labels.view(-1),
         ignore_index=self.params.pad_token_id,
+        label_smoothing=self.params.label_smoothing,
       )
 
     return logits, loss
