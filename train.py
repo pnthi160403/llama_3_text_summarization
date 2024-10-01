@@ -182,82 +182,82 @@ def train(config):
     )
     trainer.train_loop()
 
-    # # draw graph loss
-    # # train and val
-    # draw_multi_graph(
-    #     config=config,
-    #     xlabel="Step",
-    #     ylabel="Loss value",
-    #     title="Loss",
-    #     all_data=[
-    #         (trainer.loss_train_epoch_figure.loss_value, "Train"),
-    #         (trainer.loss_val_epoch_figure.loss_value, "Val")
-    #     ],
-    #     steps=trainer.loss_train_epoch_figure.loss_step,
-    # )
-    # # train step
-    # draw_graph(
-    #     config=config,
-    #     title="Loss train",
-    #     xlabel="Step",
-    #     ylabel="Loss value",
-    #     data=trainer.loss_train_step_figure.loss_value,
-    #     steps=trainer.loss_train_step_figure.loss_step,
-    # )
+    # draw graph loss
+    # train and val
+    draw_multi_graph(
+        config=config,
+        xlabel="Step",
+        ylabel="Loss value",
+        title="Loss",
+        all_data=[
+            (trainer.loss_train_epoch_figure.loss_value, "Train"),
+            (trainer.loss_val_epoch_figure.loss_value, "Val")
+        ],
+        steps=trainer.loss_train_epoch_figure.loss_step,
+    )
+    # train step
+    draw_graph(
+        config=config,
+        title="Loss train",
+        xlabel="Step",
+        ylabel="Loss value",
+        data=trainer.loss_train_step_figure.loss_value,
+        steps=trainer.loss_train_step_figure.loss_step,
+    )
 
-    # # val step
-    # draw_graph(
-    #     config=config,
-    #     title="Loss val",
-    #     xlabel="Step",
-    #     ylabel="Loss value",
-    #     data=trainer.loss_val_step_figure.loss_value,
-    #     steps=trainer.loss_val_step_figure.loss_step,
-    # )
+    # val step
+    draw_graph(
+        config=config,
+        title="Loss val",
+        xlabel="Step",
+        ylabel="Loss value",
+        data=trainer.loss_val_step_figure.loss_value,
+        steps=trainer.loss_val_step_figure.loss_step,
+    )
 
-    # # rouge 1
-    # draw_graph(
-    #     config=config,
-    #     title="Rouge 1",
-    #     xlabel="Epoch",
-    #     ylabel="Rouge 1",
-    #     data=trainer.rouge_1_epoch_figure.loss_value,
-    #     steps=trainer.rouge_1_epoch_figure.loss_step,
-    #     log_scale=False,
-    # )
+    # rouge 1
+    draw_graph(
+        config=config,
+        title="Rouge 1",
+        xlabel="Epoch",
+        ylabel="Rouge 1",
+        data=trainer.rouge_1_epoch_figure.loss_value,
+        steps=trainer.rouge_1_epoch_figure.loss_step,
+        log_scale=False,
+    )
 
-    # # rouge 2
-    # draw_graph(
-    #     config=config,
-    #     title="Rouge 2",
-    #     xlabel="Epoch",
-    #     ylabel="Rouge 2",
-    #     data=trainer.rouge_2_epoch_figure.loss_value,
-    #     steps=trainer.rouge_2_epoch_figure.loss_step,
-    #     log_scale=False,
-    # )
+    # rouge 2
+    draw_graph(
+        config=config,
+        title="Rouge 2",
+        xlabel="Epoch",
+        ylabel="Rouge 2",
+        data=trainer.rouge_2_epoch_figure.loss_value,
+        steps=trainer.rouge_2_epoch_figure.loss_step,
+        log_scale=False,
+    )
 
-    # # rouge l
-    # draw_graph(
-    #     config=config,
-    #     title="Rouge L",
-    #     xlabel="Epoch",
-    #     ylabel="Rouge L",
-    #     data=trainer.rouge_l_epoch_figure.loss_value,
-    #     steps=trainer.rouge_l_epoch_figure.loss_step,
-    #     log_scale=False,
-    # )
+    # rouge l
+    draw_graph(
+        config=config,
+        title="Rouge L",
+        xlabel="Epoch",
+        ylabel="Rouge L",
+        data=trainer.rouge_l_epoch_figure.loss_value,
+        steps=trainer.rouge_l_epoch_figure.loss_step,
+        log_scale=False,
+    )
 
-    # # zip directory
-    # zip_directory(
-    #     directory_path=config["log_dir"],
-    #     output_zip_path=config["log_dir_zip"],
-    # )
-    # zip_directory(
-    #     directory_path=config["config_dir"],
-    #     output_zip_path=config["config_dir_zip"],
-    # )
-    # zip_directory(
-    #     directory_path=config["model_folder_name"],
-    #     output_zip_path=config["model_folder_name_zip"],
-    # )
+    # zip directory
+    zip_directory(
+        directory_path=config["log_dir"],
+        output_zip_path=config["log_dir_zip"],
+    )
+    zip_directory(
+        directory_path=config["config_dir"],
+        output_zip_path=config["config_dir_zip"],
+    )
+    zip_directory(
+        directory_path=config["model_folder_name"],
+        output_zip_path=config["model_folder_name_zip"],
+    )
