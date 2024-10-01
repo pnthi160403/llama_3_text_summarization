@@ -160,8 +160,8 @@ class Attention(nn.Module):
       values = repeat_kv(xv, self.n_rep)
 
       # For training mode, we'll compute mask and apply to the attention score later
-      mask = torch.full((seq_len, seq_len),float("-inf"),device=self.args.device)
-      mask = torch.triu(mask, diagonal=1).to(self.args.device)
+      mask = torch.full((seq_len, seq_len), 1, device=self.args.device)
+      mask = (torch.triu(mask, diagonal=1) == 0).int().to(self.args.device)
 
     # To compute attention, we'll need to perform a transpose operation to reshape all queries, keys and values bring heads at dim 1 and seq at dim 2
     xq = xq.transpose(1,2)                  #xq[bsz,n_heads,seq_len,head_dim]
@@ -171,8 +171,7 @@ class Attention(nn.Module):
     # Computing attention score
     scores = torch.matmul(xq, keys.transpose(2,3)).to(self.args.device)/math.sqrt(self.head_dim)
     if mask is not None:
-      scores = scores + mask
-    print(f"{mask_attention[:, None, None, :].shape = }")
+      scores = scores.masked_fill(mask.unsqueeze(0).unsqueeze(1) == 0, float("-inf"))
     if mask_attention is not None:
       scores = scores.masked_fill(mask_attention[:, None, None, :] == 0, float("-inf"))
 
@@ -309,7 +308,8 @@ class Transformer(nn.Module):
     # Training mode is activated if the labels are available. And Loss will be calculated for further model training. 
     else:
       loss = F.cross_entropy(
-        logits.view(-1, self.params.vocab_size), labels.view(-1),
+        logits.view(-1, self.params.vocab_size),
+        labels.view(-1),
         ignore_index=self.params.pad_token_id,
       )
 

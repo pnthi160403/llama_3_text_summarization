@@ -8,6 +8,7 @@ from .utils import (
     get_weights_file_path,
     weights_file_path,
     set_seed,
+    get_AdamW,
     LossFigure,
 )
 from .model import Transformer, ModelArgs
@@ -25,6 +26,8 @@ def train(config):
     create_dirs(dir_paths=[config["log_dir"], config["model_folder_name"], config["log_files"], config["config_dir"], config["generated_dir"]])
     # set seed
     set_seed(seed=config["seed"])
+    #device
+    device = config["device"]
     # read tokenizer
     tokenizer_src, tokenizer_tgt = read_tokenizer(
         tokenizer_src_path=config["tokenizer_src_path"],
@@ -32,7 +35,7 @@ def train(config):
     )
     config["src_vocab_size"] = tokenizer_src.get_vocab_size()
     config["tgt_vocab_size"] = tokenizer_tgt.get_vocab_size()
-    # model config
+    # # model config
     ModelArgs.dim = config["dim"]
     ModelArgs.n_layers = config["n_layers"]
     ModelArgs.n_heads = config["n_heads"]
@@ -50,7 +53,8 @@ def train(config):
     model = Transformer(
         ModelArgs,
     ).to(ModelArgs.device)
-    # get dataloaders
+    print(f"Model: {model}")
+    # # get dataloaders
     train_dataloader, val_dataloader, test_dataloader = get_dataloader(
         tokenizer_src=tokenizer_src,
         tokenizer_tgt=tokenizer_tgt,
@@ -67,7 +71,7 @@ def train(config):
         max_num_train=config["max_num_train"],
         shuffle_index=config["shuffle_index"],
     )
-    # optimizer
+    # # optimizer
     optimizer = get_AdamW(
         model=model,
         lr=config["lr"],
@@ -76,7 +80,7 @@ def train(config):
         betas=config["betas"]
     )
     preload = config["preload"]
-    # load model
+    # # load model
     model_folder_name=config["model_folder_name"]
     model_base_name=config["model_base_name"]
     weights_files = weights_file_path(
@@ -96,9 +100,9 @@ def train(config):
         print(f"Loaded model from {model_filename}")
     else:
         print("No model to preload, start training from scratch")
-
-    # loss figures
-    # train step figures
+        
+    # # loss figures
+    # # train step figures
     loss_train_step_figure = LossFigure(
         xlabel="Step",
         ylabel="Loss value",
@@ -155,7 +159,7 @@ def train(config):
         loss_step_path=config["epoch_rouge_l_step_path"],
     )
 
-    # train model
+    # # train model
     trainer = BartTrainerSingleGPU(
         config=config,
         model=model,
@@ -178,82 +182,82 @@ def train(config):
     )
     trainer.train_loop()
 
-    # draw graph loss
-    # train and val
-    draw_multi_graph(
-        config=config,
-        xlabel="Step",
-        ylabel="Loss value",
-        title="Loss",
-        all_data=[
-            (trainer.loss_train_epoch_figure.loss_value, "Train"),
-            (trainer.loss_val_epoch_figure.loss_value, "Val")
-        ],
-        steps=trainer.loss_train_epoch_figure.loss_step,
-    )
-    # train step
-    draw_graph(
-        config=config,
-        title="Loss train",
-        xlabel="Step",
-        ylabel="Loss value",
-        data=trainer.loss_train_step_figure.loss_value,
-        steps=trainer.loss_train_step_figure.loss_step,
-    )
+    # # draw graph loss
+    # # train and val
+    # draw_multi_graph(
+    #     config=config,
+    #     xlabel="Step",
+    #     ylabel="Loss value",
+    #     title="Loss",
+    #     all_data=[
+    #         (trainer.loss_train_epoch_figure.loss_value, "Train"),
+    #         (trainer.loss_val_epoch_figure.loss_value, "Val")
+    #     ],
+    #     steps=trainer.loss_train_epoch_figure.loss_step,
+    # )
+    # # train step
+    # draw_graph(
+    #     config=config,
+    #     title="Loss train",
+    #     xlabel="Step",
+    #     ylabel="Loss value",
+    #     data=trainer.loss_train_step_figure.loss_value,
+    #     steps=trainer.loss_train_step_figure.loss_step,
+    # )
 
-    # val step
-    draw_graph(
-        config=config,
-        title="Loss val",
-        xlabel="Step",
-        ylabel="Loss value",
-        data=trainer.loss_val_step_figure.loss_value,
-        steps=trainer.loss_val_step_figure.loss_step,
-    )
+    # # val step
+    # draw_graph(
+    #     config=config,
+    #     title="Loss val",
+    #     xlabel="Step",
+    #     ylabel="Loss value",
+    #     data=trainer.loss_val_step_figure.loss_value,
+    #     steps=trainer.loss_val_step_figure.loss_step,
+    # )
 
-    # rouge 1
-    draw_graph(
-        config=config,
-        title="Rouge 1",
-        xlabel="Epoch",
-        ylabel="Rouge 1",
-        data=trainer.rouge_1_epoch_figure.loss_value,
-        steps=trainer.rouge_1_epoch_figure.loss_step,
-        log_scale=False,
-    )
+    # # rouge 1
+    # draw_graph(
+    #     config=config,
+    #     title="Rouge 1",
+    #     xlabel="Epoch",
+    #     ylabel="Rouge 1",
+    #     data=trainer.rouge_1_epoch_figure.loss_value,
+    #     steps=trainer.rouge_1_epoch_figure.loss_step,
+    #     log_scale=False,
+    # )
 
-    # rouge 2
-    draw_graph(
-        config=config,
-        title="Rouge 2",
-        xlabel="Epoch",
-        ylabel="Rouge 2",
-        data=trainer.rouge_2_epoch_figure.loss_value,
-        steps=trainer.rouge_2_epoch_figure.loss_step,
-        log_scale=False,
-    )
+    # # rouge 2
+    # draw_graph(
+    #     config=config,
+    #     title="Rouge 2",
+    #     xlabel="Epoch",
+    #     ylabel="Rouge 2",
+    #     data=trainer.rouge_2_epoch_figure.loss_value,
+    #     steps=trainer.rouge_2_epoch_figure.loss_step,
+    #     log_scale=False,
+    # )
 
-    # rouge l
-    draw_graph(
-        config=config,
-        title="Rouge L",
-        xlabel="Epoch",
-        ylabel="Rouge L",
-        data=trainer.rouge_l_epoch_figure.loss_value,
-        steps=trainer.rouge_l_epoch_figure.loss_step,
-        log_scale=False,
-    )
+    # # rouge l
+    # draw_graph(
+    #     config=config,
+    #     title="Rouge L",
+    #     xlabel="Epoch",
+    #     ylabel="Rouge L",
+    #     data=trainer.rouge_l_epoch_figure.loss_value,
+    #     steps=trainer.rouge_l_epoch_figure.loss_step,
+    #     log_scale=False,
+    # )
 
-    # zip directory
-    zip_directory(
-        directory_path=config["log_dir"],
-        output_zip_path=config["log_dir_zip"],
-    )
-    zip_directory(
-        directory_path=config["config_dir"],
-        output_zip_path=config["config_dir_zip"],
-    )
-    zip_directory(
-        directory_path=config["model_folder_name"],
-        output_zip_path=config["model_folder_name_zip"],
-    )
+    # # zip directory
+    # zip_directory(
+    #     directory_path=config["log_dir"],
+    #     output_zip_path=config["log_dir_zip"],
+    # )
+    # zip_directory(
+    #     directory_path=config["config_dir"],
+    #     output_zip_path=config["config_dir_zip"],
+    # )
+    # zip_directory(
+    #     directory_path=config["model_folder_name"],
+    #     output_zip_path=config["model_folder_name_zip"],
+    # )

@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from tqdm import tqdm
+import sys
 
 class Search(nn.Module):
     def __init__(
@@ -400,51 +400,43 @@ class SearchNode():
         self,
         eos_token_id: int,
         pad_token_id: int,
-        sos_token_id: int,
-        initial_candidates: torch.Tensor,
-        tokenizer_tgt,
-        tokenizer_src,
+        sep_token_id: int,
+        initial_candidate: torch.Tensor,
         device: str,
+        tokenizer,
         max_len: int=200,
         n_gram: int=1,
+        step: int=0,
     ):
         self.eos_token_id = eos_token_id
         self.pad_token_id = pad_token_id
-        self.sos_token_id = sos_token_id
-        self.tokenizer_tgt = tokenizer_tgt
-        self.tokenizer_src = tokenizer_src
+        self.sep_token_id = sep_token_id
+        self.tokenizer = tokenizer
         self.device = device
         self.max_len = max_len
         self.n_gram = n_gram
-        self.tgt = initial_candidates
-        self.tgt_attention_mask = (self.tgt != pad_token_id).type(torch.int64).to(device)
-        self.last_token = self.sos_token_id
-        self.num_steps = 0
-        self.scores = torch.tensor([0]).to(self.device)
-        self.past_key_values = None
-        self.past_attn_scores = None
-        self.indices = torch.tensor([self.sos_token_id]).to(device)
+        self.tgt = torch.tensor(initial_candidate).to(self.device)
+        self.last_token = self.sep_token_id
+        self.num_steps = step
+        self.scores = torch.tensor([0] * self.num_steps).to(self.device)
+        self.indices = torch.tensor(initial_candidate).to(self.device)
 
     def copy(self):
         new_item = SearchNode(
             eos_token_id=self.eos_token_id,
             pad_token_id=self.pad_token_id,
-            sos_token_id=self.sos_token_id,
-            tokenizer_tgt=self.tokenizer_tgt,
-            tokenizer_src=self.tokenizer_src,
+            sep_token_id=self.sep_token_id,
+            initial_candidate=self.tgt,
             device=self.device,
+            tokenizer=self.tokenizer,
             max_len=self.max_len,
-            encoder_output=self.encoder_output,
-            encoder_output_mask=self.src_attention_mask,
             n_gram=self.n_gram,
+            step=self.num_steps,
         )
         new_item.tgt = self.tgt
-        new_item.tgt_attention_mask = self.tgt_attention_mask
         new_item.last_token = self.last_token
         new_item.num_steps = self.num_steps
         new_item.scores = self.scores
-        new_item.past_key_values = self.past_key_values
-        new_item.past_attn_scores = self.past_attn_scores
         new_item.indices = self.indices
         return new_item
 
@@ -471,7 +463,6 @@ class SearchNode():
                 self.tgt,
                 torch.tensor([indice]).to(self.device)
             ], dim=-1)
-            self.tgt_attention_mask = (self.tgt != self.pad_token_id).type(torch.int64).to(self.device)
 
         # update indices
         self.indices = torch.cat([

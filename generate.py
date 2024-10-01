@@ -4,6 +4,7 @@ from .search_algos import (
     DIVERSE_BEAM_SEARCH,
     SearchNode,
 )
+import sys
 # length penalty
 def sequence_length_penalty(length: int, alpha: float=0.6) -> float:
     return ((5 + length) / (5 + 1)) ** alpha
@@ -27,10 +28,12 @@ def generate(
     sos_token_id = tokenizer_src.token_to_id("<s>")
     eos_token_id = tokenizer_src.token_to_id("</s>")
     pad_token_id = tokenizer_src.token_to_id("<pad>")
+    sep_token_id = tokenizer_src.token_to_id("<mask>")
     special_tokens = {
         "<s>": sos_token_id,
         "</s>": eos_token_id,
         "<pad>": pad_token_id,
+        "<mask>": sep_token_id,
     }
     type_search = config["type_search"]
     vocab_size = tokenizer_tgt.get_vocab_size()
@@ -49,38 +52,37 @@ def generate(
 
     sos_token = torch.tensor([tokenizer_tgt.token_to_id("<s>")], dtype=torch.int64)
     eos_token = torch.tensor([tokenizer_tgt.token_to_id("</s>")], dtype=torch.int64)
+    sep_token = torch.tensor([tokenizer_tgt.token_to_id("<mask>")], dtype=torch.int64)
 
     enc_input_tokens = tokenizer_src.encode(src).ids
-    inital_candiate = torch.cat(
+    initial_candidate = torch.cat(
         [
             sos_token,
             torch.tensor(enc_input_tokens, dtype=torch.int64),
-            eos_token,
+            sep_token,
         ],
         dim=0,
     ).to(device)
-
+  
     candidates = [SearchNode(
         eos_token_id=eos_token_id,
         pad_token_id=pad_token_id,
-        sos_token_id=sos_token_id,
-        tokenizer_src=tokenizer_src,
-        tokenizer_tgt=tokenizer_tgt,
-        initial_candidate=inital_candiate,
+        sep_token_id=sep_token_id,
+        initial_candidate=initial_candidate,
         device=device,
+        tokenizer=tokenizer_src,
         max_len=max_len,
         n_gram=n_gram,
+        step=initial_candidate.shape[0],
     )] * beam_size
 
-    for step in range(len(inital_candiate) - 1, max_len - 1):
+    for step in range(initial_candidate.shape[0] - 1, max_len - 1):
         if all([candidate.stop_search() for candidate in candidates]):
             break
         new_candidates = []
         lprobs = []
         scores = None
         indices = []
-        candidates_past_key_values = []
-        candidates_past_attn_scores = []
         mask_stop_search = None
         # mask (batch_size, beam_size)
         for input_beam in range(beam_size):
@@ -89,13 +91,13 @@ def generate(
                 # lprob (1, vocab_size)
                 lprob = torch.zeros((1, vocab_size), dtype=torch.float32).to(device)
             else:
-                if step == len(inital_candiate) - 1:
+                if (step == initial_candidate.shape[0] - 1):
                     logits, loss = model(
                         inputs_ids=candidate.tgt.unsqueeze(0),
                     )
                 else:
                     logits, loss = model(
-                        inputs_ids=candidate.tgt[:-1].unsqueeze(0),
+                        inputs_ids=candidate.tgt[-1:].unsqueeze(0),
                         start_pos=step,
                     )
                 # lprob (1, vocab_size)
@@ -145,8 +147,6 @@ def generate(
             candidate.step(
                 score=scores[0][output_beam],
                 indice=indices[0][output_beam],
-                past_key_values=candidates_past_key_values[input_beam],
-                past_attn_scores=candidates_past_attn_scores[input_beam],
             )
             new_candidates.append(candidate)
 

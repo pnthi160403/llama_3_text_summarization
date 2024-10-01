@@ -137,6 +137,8 @@ def collate_fn(batch, tokenizer_src, tokenizer_tgt):
     inputs_trainning_batch, inputs_inference_batch, labels_batch, src_text_batch, tgt_text_batch = [], [], [], [], []
     sos_token = torch.tensor([tokenizer_tgt.token_to_id("<s>")], dtype=torch.int64)
     eos_token = torch.tensor([tokenizer_tgt.token_to_id("</s>")], dtype=torch.int64)
+    # seperator_token = torch.tensor([tokenizer_tgt.token_to_id("<sep>")], dtype=torch.int64)
+    seperator_token = torch.tensor([tokenizer_tgt.token_to_id("<mask>")], dtype=torch.int64)
 
     for item in batch:
         src_text = item["src_text"]
@@ -145,11 +147,12 @@ def collate_fn(batch, tokenizer_src, tokenizer_tgt):
         enc_input_tokens = tokenizer_src.encode(src_text).ids
         dec_input_tokens = tokenizer_tgt.encode(tgt_text).ids
 
+        # model llama 3 for text summarization
         inputs_trainning = torch.cat(
             [
                 sos_token,
                 torch.tensor(enc_input_tokens, dtype=torch.int64),
-                eos_token,
+                seperator_token,
                 torch.tensor(dec_input_tokens, dtype=torch.int64),
             ],
             dim=0,
@@ -157,25 +160,24 @@ def collate_fn(batch, tokenizer_src, tokenizer_tgt):
         
         labels = torch.cat(
             [
+                torch.tensor(enc_input_tokens, dtype=torch.int64),
+                seperator_token,
                 torch.tensor(dec_input_tokens, dtype=torch.int64),
                 eos_token,
             ]
         )
 
         inputs_trainning_batch.append(inputs_trainning)
-        inputs_inference_batch.append(inputs_inference)
         labels_batch.append(labels)
         src_text_batch.append(src_text)
         tgt_text_batch.append(tgt_text)
         
      
     inputs_trainning_batch = pad_sequence(inputs_trainning_batch, padding_value=pad_token_id, batch_first=True)
-    inputs_inference_batch = pad_sequence(inputs_inference_batch, padding_value=pad_token_id, batch_first=True)
     labels_batch = pad_sequence(labels_batch, padding_value=pad_token_id, batch_first=True) 
     
     return {
-        'inputs_trainning': inputs_trainning_batch,
-        'inputs_inference': inputs_inference_batch,
+        'inputs_training': inputs_trainning_batch,
         'labels': labels_batch,
         'src_text': src_text_batch,
         'tgt_text': tgt_text_batch,

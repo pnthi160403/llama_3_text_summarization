@@ -55,8 +55,8 @@ def get_config(base_dir: str=None):
     config["epoch_rouge_l_step_path"] = join_base(config["log_files"], "/epoch_rouge_l_step.json")
 
     # Dataset
-    config["lang_src"] = "noise_vi"
-    config["lang_tgt"] = "vi"
+    config["lang_src"] = "content"
+    config["lang_tgt"] = "summary"
     config["train_ds_path"] = None
     config["val_ds_path"] = None
     config["test_ds_path"] = None
@@ -64,7 +64,7 @@ def get_config(base_dir: str=None):
     config["max_num_val"] = 10000
     config["max_num_train"] = 200000
     config["corpus"] = None
-    config["max_len"] = 200
+    config["max_len"] = 3072
     config["src_vocab_size_bart_encoder"] = 30000
     config["seed"] = 42
     config["shuffle_index"] = [(0, -1)]
@@ -95,14 +95,14 @@ def get_config(base_dir: str=None):
     config["norm_eps"] = 1e-5
     config["rope_theta"] = 10000.0
     config["max_batch_size"] = 4
-    config["max_seq_len"] = 30722
+    config["max_seq_len"] = 3072
     config["device"] = "cuda" if torch.cuda.is_available() else "cpu"
     
     # GELU activation function
     config["approximate_gelu"] = 'none'
 
     # Search module
-    config["type_search"] = "beam_search"
+    config["type_search"] = "diverse_beam_search"
     config["beams"] = [2]
     config["num_groups_search"] = 1
     config["diversity_strength_search"] = 0.5

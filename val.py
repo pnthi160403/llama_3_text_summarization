@@ -14,6 +14,10 @@ from .utils import (
     compute_rouges,
 )
 from .data import read_tokenizer
+from tqdm import tqdm
+from torch.nn.utils.rnn import pad_sequence
+import sys
+
 def validate(model, config, beam_size, val_dataloader, num_example: int=5):
     model.eval()
     device = config["device"]
@@ -26,8 +30,9 @@ def validate(model, config, beam_size, val_dataloader, num_example: int=5):
         tokenizer_tgt_path=config["tokenizer_tgt_path"],
     )
 
-    vocab_size=tokenizer_tgt.get_vocab_size()
+    vocab_size = tokenizer_tgt.get_vocab_size()
     pad_token_id = tokenizer_src.token_to_id("<pad>")
+    sep_token_id = tokenizer_src.token_to_id("<mask>")
 
     with torch.no_grad():
 
@@ -58,9 +63,13 @@ def validate(model, config, beam_size, val_dataloader, num_example: int=5):
                 tokenizer_tgt=tokenizer_tgt,
                 src=src_text,
             )
+            for i in range(len(preds_ids)):
+                index_step_token_id = (preds_ids[i].tgt.squeeze() == sep_token_id).nonzero(as_tuple=True)[0].item()
+                preds_ids[i].tgt = preds_ids[i].tgt[index_step_token_id:]
+                
             if config["type_search"] in [BEAM_SEARCH, DIVERSE_BEAM_SEARCH]:
                 pred_ids = preds_ids[0].tgt.squeeze()
-            
+                
             pred_text = tokenizer_tgt.decode(
                 pred_ids.detach().cpu().numpy(),
                 skip_special_tokens=True,
