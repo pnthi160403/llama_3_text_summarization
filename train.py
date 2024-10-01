@@ -26,7 +26,7 @@ def train(config):
     create_dirs(dir_paths=[config["log_dir"], config["model_folder_name"], config["log_files"], config["config_dir"], config["generated_dir"]])
     # set seed
     set_seed(seed=config["seed"])
-    #device
+    # device
     device = config["device"]
     # read tokenizer
     tokenizer_src, tokenizer_tgt = read_tokenizer(
@@ -35,7 +35,7 @@ def train(config):
     )
     config["src_vocab_size"] = tokenizer_src.get_vocab_size()
     config["tgt_vocab_size"] = tokenizer_tgt.get_vocab_size()
-    # # model config
+    # model config
     ModelArgs.dim = config["dim"]
     ModelArgs.n_layers = config["n_layers"]
     ModelArgs.n_heads = config["n_heads"]
@@ -47,6 +47,7 @@ def train(config):
     ModelArgs.rope_theta = config["rope_theta"]
     ModelArgs.max_batch_size = config["max_batch_size"]
     ModelArgs.max_seq_len = config["max_seq_len"]
+    ModelArgs.label_smoothing = config["label_smoothing"]
     ModelArgs.device = config["device"]
     ModelArgs.pad_token_id = tokenizer_src.token_to_id("<pad>")
     # get model
@@ -54,7 +55,7 @@ def train(config):
         ModelArgs,
     ).to(ModelArgs.device)
     print(f"Model: {model}")
-    # # get dataloaders
+    # get dataloaders
     train_dataloader, val_dataloader, test_dataloader = get_dataloader(
         tokenizer_src=tokenizer_src,
         tokenizer_tgt=tokenizer_tgt,
@@ -71,7 +72,7 @@ def train(config):
         max_num_train=config["max_num_train"],
         shuffle_index=config["shuffle_index"],
     )
-    # # optimizer
+    # optimizer
     optimizer = get_AdamW(
         model=model,
         lr=config["lr"],
