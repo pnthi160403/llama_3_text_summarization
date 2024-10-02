@@ -51,7 +51,7 @@ def read_ds(
         max_num_val: int=10000,
         max_num_test: int=2000,
         max_num_train: int=140000,
-        shuffle_index: list=[(0, -1)],
+        shuffle_range: list=None,
 ):
 
     train_ds, val_ds, test_ds = None, None, None
@@ -94,6 +94,17 @@ def read_ds(
     if len(train_ds) > max_num_train:
         train_ds = train_ds[:max_num_train]
 
+    if shuffle_range is None:
+        shuffle_index = [(0, len(train_ds))]
+    else:
+        shuffle_index = []
+        for i in range(1, len(shuffle_range)):
+            shuffle_range[i] += shuffle_range[i - 1]
+        for i in range(0, len(shuffle_range)):
+            if i == 0:
+                shuffle_index.append((0, shuffle_range[i]))
+            else:
+                shuffle_index.append((shuffle_range[i - 1], shuffle_range[i]))
     train_ds = shuffle_dataframe(train_ds, shuffle_index)
 
     print("Read dataset successfully")
@@ -197,7 +208,7 @@ def get_dataloader(
         max_num_val: int=15000,
         max_num_test: int=15000,
         max_num_train: int=200000,
-        shuffle_index: list=[(0, -1)],
+        shuffle_range: list=None,
 ):
     train_ds, val_ds, test_ds = read_ds(
         train_ds_path=train_ds_path,
@@ -206,7 +217,7 @@ def get_dataloader(
         max_num_val=max_num_val,
         max_num_test=max_num_test,
         max_num_train=max_num_train,
-        shuffle_index=shuffle_index,
+        shuffle_range=shuffle_range,
     )
 
     train_dataset, val_dataset, test_dataset = None, None, None

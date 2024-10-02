@@ -44,7 +44,7 @@ def test(config):
         max_num_val=config["max_num_val"],
         max_num_test=config["max_num_test"],
         max_num_train=config["max_num_train"],
-        shuffle_index=config["shuffle_index"],
+        shuffle_range=config["shuffle_range"],
     )
     # model config
     ModelArgs.dim = config["dim"]
