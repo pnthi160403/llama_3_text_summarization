@@ -28,12 +28,12 @@ def generate(
     sos_token_id = tokenizer_src.token_to_id("<s>")
     eos_token_id = tokenizer_src.token_to_id("</s>")
     pad_token_id = tokenizer_src.token_to_id("<pad>")
-    sep_token_id = tokenizer_src.token_to_id("<mask>")
+    sep_token_id = tokenizer_src.token_to_id("<sep>")
     special_tokens = {
         "<s>": sos_token_id,
         "</s>": eos_token_id,
         "<pad>": pad_token_id,
-        "<mask>": sep_token_id,
+        "<sep>": sep_token_id,
     }
     type_search = config["type_search"]
     vocab_size = tokenizer_tgt.get_vocab_size()
@@ -51,8 +51,7 @@ def generate(
     )
 
     sos_token = torch.tensor([tokenizer_tgt.token_to_id("<s>")], dtype=torch.int64)
-    eos_token = torch.tensor([tokenizer_tgt.token_to_id("</s>")], dtype=torch.int64)
-    sep_token = torch.tensor([tokenizer_tgt.token_to_id("<mask>")], dtype=torch.int64)
+    sep_token = torch.tensor([tokenizer_tgt.token_to_id("<sep>")], dtype=torch.int64)
 
     enc_input_tokens = tokenizer_src.encode(src).ids
     initial_candidate = torch.cat(

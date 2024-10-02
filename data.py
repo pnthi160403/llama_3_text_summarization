@@ -149,7 +149,7 @@ def collate_fn(batch, tokenizer_src, tokenizer_tgt):
     inputs_trainning_batch, inputs_inference_batch, labels_batch, src_text_batch, tgt_text_batch = [], [], [], [], []
     sos_token = torch.tensor([tokenizer_tgt.token_to_id("<s>")], dtype=torch.int64)
     eos_token = torch.tensor([tokenizer_tgt.token_to_id("</s>")], dtype=torch.int64)
-    seperator_token = torch.tensor([tokenizer_tgt.token_to_id("<mask>")], dtype=torch.int64)
+    sep_token = torch.tensor([tokenizer_tgt.token_to_id("<sep>")], dtype=torch.int64)
 
     for item in batch:
         src_text = item["src_text"]
@@ -163,7 +163,7 @@ def collate_fn(batch, tokenizer_src, tokenizer_tgt):
             [
                 sos_token,
                 torch.tensor(enc_input_tokens, dtype=torch.int64),
-                seperator_token,
+                sep_token,
                 torch.tensor(dec_input_tokens, dtype=torch.int64),
             ],
             dim=0,
@@ -172,7 +172,7 @@ def collate_fn(batch, tokenizer_src, tokenizer_tgt):
         labels = torch.cat(
             [
                 torch.tensor(enc_input_tokens, dtype=torch.int64),
-                seperator_token,
+                sep_token,
                 torch.tensor(dec_input_tokens, dtype=torch.int64),
                 eos_token,
             ]

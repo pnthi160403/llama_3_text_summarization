@@ -16,11 +16,13 @@ def get_config(base_dir: str=None):
     config['tokenizer_src_path'] = None
     config["use_tokenizer"] = "huggingface"
     config["special_tokens"] = [
-        "<s>",
-        "</s>",
-        "<pad>",
-        "<unk>",
-        "<mask>"
+      "<s>",
+      "</s>",
+      "<pad>",
+      "<unk>",
+      "<mask>",
+      "<cls>",
+      "<sep>",
     ]
     config["vocab_size"] = 30000
     config['min_frequency'] = 2

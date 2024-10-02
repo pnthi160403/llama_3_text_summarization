@@ -32,7 +32,7 @@ def validate(model, config, beam_size, val_dataloader, num_example: int=5):
 
     vocab_size = tokenizer_tgt.get_vocab_size()
     pad_token_id = tokenizer_src.token_to_id("<pad>")
-    sep_token_id = tokenizer_src.token_to_id("<mask>")
+    sep_token_id = tokenizer_src.token_to_id("<sep>")
 
     with torch.no_grad():
 
