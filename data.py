@@ -105,6 +105,7 @@ def read_ds(
                 shuffle_index.append((0, shuffle_range[i]))
             else:
                 shuffle_index.append((shuffle_range[i - 1], shuffle_range[i]))
+    print("Shuffle index: ", shuffle_index)
     train_ds = shuffle_dataframe(train_ds, shuffle_index)
 
     print("Read dataset successfully")

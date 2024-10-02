@@ -96,6 +96,7 @@ def get_config(base_dir: str=None):
     config["rope_theta"] = 10000.0
     config["max_batch_size"] = 4
     config["max_seq_len"] = 3072
+    config["label_smoothing"] = 0.01
     config["device"] = "cuda" if torch.cuda.is_available() else "cpu"
     
     # GELU activation function
