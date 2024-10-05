@@ -64,7 +64,11 @@ def validate(model, config, beam_size, val_dataloader, num_example: int=5):
                 src=src_text,
             )
             for i in range(len(preds_ids)):
-                index_step_token_id = (preds_ids[i].tgt.squeeze() == sep_token_id).nonzero(as_tuple=True)[0].item()
+                index_step_token_id = 0
+                for j in range(len(preds_ids[i].tgt)):
+                    if preds_ids[i].tgt[j] == sep_token_id:   
+                        index_step_token_id = j
+                        break
                 preds_ids[i].tgt = preds_ids[i].tgt[index_step_token_id:]
                 
             if config["type_search"] in [BEAM_SEARCH, DIVERSE_BEAM_SEARCH]:
