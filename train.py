@@ -48,6 +48,7 @@ def train(config):
     ModelArgs.max_batch_size = config["max_batch_size"]
     ModelArgs.max_seq_len = config["max_seq_len"]
     ModelArgs.label_smoothing = config["label_smoothing"]
+    ModelArgs.layer_dropout = config["layer_dropout"]
     ModelArgs.device = config["device"]
     ModelArgs.pad_token_id = tokenizer_src.token_to_id("<pad>")
     # get model
