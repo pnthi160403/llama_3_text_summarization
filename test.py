@@ -61,6 +61,7 @@ def test(config):
     ModelArgs.label_smoothing = config["label_smoothing"]
     ModelArgs.device = config["device"]
     ModelArgs.pad_token_id = tokenizer_src.token_to_id("<pad>")
+    ModelArgs.vocab_size = config['vocab_size']
     # get model
     model = Transformer(
         ModelArgs,
