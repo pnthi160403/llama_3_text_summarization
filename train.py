@@ -35,12 +35,12 @@ def train(config):
     )
     config["src_vocab_size"] = tokenizer_src.get_vocab_size()
     config["tgt_vocab_size"] = tokenizer_tgt.get_vocab_size()
+    config["vocab_size"] = config["tgt_vocab_size"]
     # model config
     ModelArgs.dim = config["dim"]
     ModelArgs.n_layers = config["n_layers"]
     ModelArgs.n_heads = config["n_heads"]
     ModelArgs.n_kv_heads = config["n_kv_heads"]
-    ModelArgs.vocab_size = config["vocab_size"]
     ModelArgs.multiple_of = config["multiple_of"]
     ModelArgs.ffn_dim_multiplier = config["ffn_dim_multiplier"]
     ModelArgs.norm_eps = config["norm_eps"]
