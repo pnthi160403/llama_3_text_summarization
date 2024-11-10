@@ -294,9 +294,9 @@ class Transformer(nn.Module):
 
     # The embeddings (h) will then pass though all the decoder blocks.
     for layer in self.layers:
-      if self.training:
-        dropout_prob = torch.rand([])
-        if dropout_prob < self.params.layer_dropout:
+      if inference:
+        drop_prob = torch.rand([]).item()
+        if drop_prob < self.params.layer_dropout:
           continue
       h = layer(h, start_pos, inference, freqs_cis, mask_attention)
 
