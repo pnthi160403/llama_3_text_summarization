@@ -26,7 +26,6 @@ class ModelArgs:
   max_seq_len: int = 3072
   pad_token_id: int = 2
   label_smoothing: float = 0.01
-  layer_dropout: float = 0.1
   device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 ## Step2a: The RMSNorm
@@ -294,10 +293,6 @@ class Transformer(nn.Module):
 
     # The embeddings (h) will then pass though all the decoder blocks.
     for layer in self.layers:
-      if self.training:
-        dropout_prob = torch.rand([])
-        if dropout_prob < self.params.layer_dropout:
-          continue
       h = layer(h, start_pos, inference, freqs_cis, mask_attention)
 
     # The output from the final decoder block will feed into the RMSNorm
