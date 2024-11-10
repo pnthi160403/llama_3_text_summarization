@@ -51,6 +51,7 @@ def train(config):
     ModelArgs.layer_dropout = config["layer_dropout"]
     ModelArgs.device = config["device"]
     ModelArgs.pad_token_id = tokenizer_src.token_to_id("<pad>")
+    ModelArgs.vocab_size = config["vocab_size"]
     # get model
     model = Transformer(
         ModelArgs,
